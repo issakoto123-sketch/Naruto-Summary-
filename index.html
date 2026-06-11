@@ -1,521 +1,688 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ajay — Portfolio</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+import { useState, useEffect, useRef } from "react";
 
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+const questions = [
+  {
+    id: 1,
+    text: "Patterns of all cell division and cell death are controlled by all EXCEPT:",
+    options: ["Totipotent", "Apoptosis", "Pluripotent", "Mitosis"],
+    answer: ["A"],
+    multi: false,
+    topic: "Cell Biology"
+  },
+  {
+    id: 2,
+    text: "All the following are nucleotide sequences EXCEPT:",
+    options: ["Histone", "Exons", "Introns", "Regulatory sequence"],
+    answer: ["A"],
+    multi: false,
+    topic: "Molecular Biology"
+  },
+  {
+    id: 3,
+    text: "A solenoid is:",
+    options: [
+      "Chain of histones stabilized by H1",
+      "Chain of histones stabilized by H2A",
+      "Chain of histones stabilized by H2B",
+      "Chain of histones stabilized by H3"
+    ],
+    answer: ["A"],
+    multi: false,
+    topic: "Chromatin Structure"
+  },
+  {
+    id: 4,
+    text: "A mother always gives birth to female children. Whose fault is that?",
+    options: ["Mother", "Father", "Poverty", "Side chick"],
+    answer: ["B"],
+    multi: false,
+    topic: "Sex Determination"
+  },
+  {
+    id: 5,
+    text: "Regarding sex chromosomes, which statement is correct?",
+    options: [
+      "Both female and male sex chromosomes are homozygous",
+      "Both female and male sex chromosomes are heterozygous",
+      "Female sex chromosome is homozygous while male sex chromosome is heterozygous",
+      "Female sex chromosome is heterozygous while male sex chromosome is homozygous"
+    ],
+    answer: ["C"],
+    multi: false,
+    topic: "Sex Chromosomes"
+  },
+  {
+    id: 6,
+    text: "The genetic code is:",
+    options: ["Constructive", "Generative", "Universal", "Degenerative"],
+    answer: ["C", "D"],
+    multi: true,
+    topic: "Genetic Code"
+  },
+  {
+    id: 7,
+    text: "Which of the following are functions of DNA Methylation? (Select all that apply)",
+    options: [
+      "Making the chromatin compact",
+      "Inactivation of the X-chromosome",
+      "Stability of the genome",
+      "Defense of the genome"
+    ],
+    answer: ["A", "B", "C", "D"],
+    multi: true,
+    topic: "Epigenetics"
+  },
+  {
+    id: 8,
+    text: "Formation of RNA molecules is by:",
+    options: ["Covalent bond", "Chain polymerase", "Hydrogen bond", "None of these"],
+    answer: ["A"],
+    multi: false,
+    topic: "Molecular Biology"
+  },
+  {
+    id: 9,
+    text: "The functions of RNA include: (Select all that apply)",
+    options: ["Protein synthesis", "Transcription", "Decoding", "Translation"],
+    answer: ["A", "C", "D"],
+    multi: true,
+    topic: "RNA Function"
+  },
+  {
+    id: 10,
+    text: "What is the function of tRNA?",
+    options: [
+      "Transporting mRNA from nucleus to cytoplasm",
+      "Translating mRNA",
+      "Transcribing mRNA",
+      "All of the above"
+    ],
+    answer: ["B"],
+    multi: false,
+    topic: "RNA"
+  },
+  {
+    id: 11,
+    text: "Which of the following is correct about DNA and RNA?",
+    options: [
+      "DNA cannot function without RNA",
+      "RNA cannot function without DNA",
+      "All can function without each other",
+      "None can function without one another"
+    ],
+    answer: ["B"],
+    multi: false,
+    topic: "Molecular Biology"
+  },
+  {
+    id: 12,
+    text: "Which of the following are considered unusual DNA and RNA? (Select all that apply)",
+    options: ["dsRNA", "CircRNA", "Quadruplet DNA", "Arsenic substitutes for phosphorus"],
+    answer: ["A", "B", "C", "D"],
+    multi: true,
+    topic: "Molecular Biology"
+  },
+  {
+    id: 13,
+    text: "The enzyme that mediates the manufactured RNA strand complementing the DNA strand is:",
+    options: ["RNA polymerase", "Transcriptase", "DNA polymerase", "Reverse transcriptase"],
+    answer: ["A"],
+    multi: false,
+    topic: "Transcription"
+  },
+  {
+    id: 16,
+    text: "A father has mitochondrial abnormality. What is the outcome for his children?",
+    options: [
+      "All children will inherit the problem",
+      "None of the children will inherit the problem",
+      "Only male children will inherit the problem",
+      "There's 50% chance of all children inheriting the problem if he is homozygous"
+    ],
+    answer: ["B"],
+    multi: false,
+    topic: "Mitochondrial Inheritance"
+  },
+  {
+    id: 17,
+    text: "What are the components of a structural sequence? (Select all that apply)",
+    options: ["Exons", "Introns", "Operons", "Regulatory sequence"],
+    answer: ["A", "B"],
+    multi: true,
+    topic: "Gene Structure"
+  },
+  {
+    id: 18,
+    text: "Regarding sex chromosomes in size:",
+    options: [
+      "The male sex chromosome is larger",
+      "The female sex chromosome is larger",
+      "Both sexes have chromosomes of the same size",
+      "The size of sex chromosomes cannot be determined"
+    ],
+    answer: ["B"],
+    multi: false,
+    topic: "Sex Chromosomes"
+  },
+  {
+    id: 19,
+    text: "The inactivated X-chromosome in females is also known as:",
+    options: ["Barr body", "T-pain", "Inactivist", "Lyon body"],
+    answer: ["A"],
+    multi: false,
+    topic: "X-Inactivation"
+  },
+  {
+    id: 20,
+    text: "X-chromosome inactivation is:",
+    options: ["Random", "Universal", "Controlled in the lab", "Done artificially"],
+    answer: ["A"],
+    multi: false,
+    topic: "X-Inactivation"
+  },
+  {
+    id: 24,
+    text: "The following are TRUE EXCEPT:",
+    options: [
+      "Crossing over occurs during prophase",
+      "Nondisjunction is the failure of chromosomes to separate during meiosis",
+      "Sister chromatids move towards opposite ends during telophase",
+      "The process of meiosis results in four 2N cells"
+    ],
+    answer: ["D"],
+    multi: false,
+    topic: "Meiosis"
+  },
+  {
+    id: 25,
+    text: "Which of the following statements is NOT true?",
+    options: [
+      "Persons with color blindness have difficulty distinguishing red from green",
+      "The human male possesses a genotype of 44 + XY",
+      "Sex determination in Drosophila was done by Rudolf Virchow",
+      "Down's syndrome is a common nondisjunction disorder"
+    ],
+    answer: ["C"],
+    multi: false,
+    topic: "Genetics"
+  },
+  {
+    id: 28,
+    text: "The word homologous literally means 'same location.' How does this relate to homologous chromosomes?",
+    options: [
+      "The bonds resulting from staining are found in the same location",
+      "The chromosomes have the same genes in the same location",
+      "The chromosomes always move to the same location in the cell during division",
+      "All the above options are correct"
+    ],
+    answer: ["B"],
+    multi: false,
+    topic: "Chromosomes"
+  },
+  {
+    id: 30,
+    text: "The 9:3:3:1 dihybrid ratio is due to:",
+    options: ["Segregation", "Crossing over", "Independent assortment", "Homologous pairing"],
+    answer: ["C"],
+    multi: false,
+    topic: "Mendelian Genetics"
+  },
+  {
+    id: 33,
+    text: "The one-gene-one polypeptide theory states that:",
+    options: [
+      "The synthesis of each gene is catalyzed by one specific enzyme",
+      "The synthesis of each enzyme is catalyzed by one specific gene",
+      "The function of an individual gene is to dictate the production of a specific polypeptide",
+      "Each polypeptide catalyzes a specific reaction"
+    ],
+    answer: ["C"],
+    multi: false,
+    topic: "Gene Expression"
+  },
+  {
+    id: 40,
+    text: "What is the primary reason Mendel chose the garden pea for his experiments?",
+    options: [
+      "It has a long growing season",
+      "It has easily observable traits",
+      "It requires complex pollination",
+      "It is native to multiple regions"
+    ],
+    answer: ["B"],
+    multi: false,
+    topic: "Mendelian Genetics"
+  },
+  {
+    id: 41,
+    text: "The expected genotype ratio from a monohybrid cross is:",
+    options: ["1:1", "3:1", "1:2:1", "9:3:3:1"],
+    answer: ["C"],
+    multi: false,
+    topic: "Mendelian Genetics"
+  },
+  {
+    id: 43,
+    text: "The results of Mendel's dihybrid cross suggested that:",
+    options: [
+      "Traits are linked together",
+      "Traits can assort independently",
+      "All traits are dominant",
+      "Only one trait can be dominant"
+    ],
+    answer: ["B"],
+    multi: false,
+    topic: "Mendelian Genetics"
+  },
+  {
+    id: 46,
+    text: "Which principle explains that different traits are inherited separately from one another?",
+    options: [
+      "Law of Dominance",
+      "Law of Segregation",
+      "Law of Independent Assortment",
+      "Principle of Dominance"
+    ],
+    answer: ["C"],
+    multi: false,
+    topic: "Mendelian Genetics"
+  },
+  {
+    id: 54,
+    text: "During which phase are sister chromatids separated?",
+    options: ["Anaphase", "Prophase", "Metaphase", "Telophase"],
+    answer: ["A"],
+    multi: false,
+    topic: "Mitosis"
+  },
+  {
+    id: 56,
+    text: "Which phase of meiosis is analogous to mitosis?",
+    options: ["Meiosis I", "Meiosis II", "Both Meiosis I and II", "None of the above"],
+    answer: ["B"],
+    multi: false,
+    topic: "Meiosis"
+  },
+  {
+    id: 57,
+    text: "What is the main feature of Meiosis I?",
+    options: [
+      "DNA synthesis",
+      "Separation of homologous chromosomes",
+      "Division of sister chromatids",
+      "Cytoplasmic division"
+    ],
+    answer: ["B"],
+    multi: false,
+    topic: "Meiosis"
+  },
+  {
+    id: 58,
+    text: "What is produced during oogenesis?",
+    options: [
+      "Four functional sperm",
+      "One functional egg and three polar bodies",
+      "Two eggs",
+      "Four polar bodies"
+    ],
+    answer: ["B"],
+    multi: false,
+    topic: "Gametogenesis"
+  },
+  {
+    id: 60,
+    text: "What type of inheritance involves one gene affecting multiple traits?",
+    options: ["Polygenic inheritance", "Pleiotropy", "Codominance", "Incomplete dominance"],
+    answer: ["B"],
+    multi: false,
+    topic: "Inheritance Patterns"
+  },
+  {
+    id: 66,
+    text: "How many different combinations of chromosomes can arise from random assortment during Meiosis I in humans?",
+    options: ["2", "23", "46", "Over 8 million"],
+    answer: ["D"],
+    multi: false,
+    topic: "Meiosis"
+  },
+  {
+    id: 67,
+    text: "What is the primary function of mitosis?",
+    options: ["Production of gametes", "Repair and growth", "Genetic diversity", "Evolution"],
+    answer: ["B"],
+    multi: false,
+    topic: "Mitosis"
+  },
+  {
+    id: 69,
+    text: "What does 'X-linked inheritance' imply for males?",
+    options: [
+      "They can be carriers for X-linked traits",
+      "They will express all X-linked alleles",
+      "They inherit two X chromosomes",
+      "They do not inherit X-linked traits"
+    ],
+    answer: ["B"],
+    multi: false,
+    topic: "X-linked Inheritance"
+  },
+  {
+    id: 71,
+    text: "What is the role of mitochondria in inheritance?",
+    options: [
+      "They are inherited from both parents",
+      "They are inherited from the father only",
+      "They are inherited from the mother only",
+      "They are not inherited"
+    ],
+    answer: ["C"],
+    multi: false,
+    topic: "Mitochondrial Inheritance"
+  },
+  {
+    id: 76,
+    text: "What is the central dogma of molecular biology?",
+    options: [
+      "DNA → RNA → Protein",
+      "RNA → DNA → Protein",
+      "Protein → RNA → DNA",
+      "DNA → Protein → RNA"
+    ],
+    answer: ["A"],
+    multi: false,
+    topic: "Molecular Biology"
+  },
+  {
+    id: 77,
+    text: "Which enzyme is responsible for synthesizing RNA from a DNA template?",
+    options: ["DNA polymerase", "RNA polymerase", "Ligase", "Helicase"],
+    answer: ["B"],
+    multi: false,
+    topic: "Transcription"
+  },
+  {
+    id: 80,
+    text: "What are introns?",
+    options: [
+      "Coding sequences in mRNA",
+      "Non-coding sequences in mRNA",
+      "Proteins",
+      "Enzymes"
+    ],
+    answer: ["B"],
+    multi: false,
+    topic: "Gene Structure"
+  },
+  {
+    id: 81,
+    text: "Which of the following mutations can lead to a frameshift?",
+    options: ["Point mutation", "Deletion", "Substitution", "Inversion"],
+    answer: ["B"],
+    multi: false,
+    topic: "Mutations"
+  },
+  {
+    id: 82,
+    text: "What is a silent mutation?",
+    options: [
+      "A mutation that changes an amino acid",
+      "A mutation that does not change the amino acid",
+      "A mutation that leads to a stop codon",
+      "A mutation that causes a disease"
+    ],
+    answer: ["B"],
+    multi: false,
+    topic: "Mutations"
+  },
+  {
+    id: 85,
+    text: "Which term describes the genetic code's ability to code for the same amino acid using different codons?",
+    options: ["Degenerative", "Universal", "Degenerate", "Repetitive"],
+    answer: ["C"],
+    multi: false,
+    topic: "Genetic Code"
+  },
+  {
+    id: 88,
+    text: "What is the function of tRNA?",
+    options: [
+      "Synthesizing DNA",
+      "Carrying amino acids to the ribosome",
+      "Transcribing DNA",
+      "Splicing RNA"
+    ],
+    answer: ["B"],
+    multi: false,
+    topic: "Translation"
+  },
+  {
+    id: 89,
+    text: "Which of the following is a characteristic of Turner syndrome?",
+    options: [
+      "Extra chromosome 21",
+      "Missing one X chromosome",
+      "XXY chromosome pattern",
+      "Trisomy 18"
+    ],
+    answer: ["B"],
+    multi: false,
+    topic: "Chromosomal Disorders"
+  },
+  {
+    id: 90,
+    text: "What is the role of a promoter in gene expression?",
+    options: [
+      "To terminate transcription",
+      "To enhance translation",
+      "To initiate transcription",
+      "To protect RNA"
+    ],
+    answer: ["C"],
+    multi: false,
+    topic: "Gene Expression"
+  },
+  {
+    id: 91,
+    text: "What is epigenetics?",
+    options: [
+      "Study of genetic mutations",
+      "Study of heritable changes in gene expression",
+      "Study of chromosomes",
+      "Study of protein folding"
+    ],
+    answer: ["B"],
+    multi: false,
+    topic: "Epigenetics"
+  },
+  {
+    id: 95,
+    text: "What type of RNA carries the genetic code from DNA to the ribosome?",
+    options: ["rRNA", "tRNA", "mRNA", "snRNA"],
+    answer: ["C"],
+    multi: false,
+    topic: "RNA"
+  },
+  {
+    id: 99,
+    text: "Which type of inheritance is displayed by sickle cell anemia?",
+    options: ["Autosomal dominant", "Autosomal recessive", "X-linked", "Mitochondrial"],
+    answer: ["B"],
+    multi: false,
+    topic: "Inheritance Patterns"
+  },
+  {
+    id: 100,
+    text: "What type of mutation is caused by the insertion of a nucleotide?",
+    options: ["Missense", "Nonsense", "Frameshift", "Silent"],
+    answer: ["C"],
+    multi: false,
+    topic: "Mutations"
+  }
+];
 
-    :root {
-      --bg:        #F9F8F6;
-      --text:      #111111;
-      --accent:    #3B5E2B;
-      --muted:     #888880;
-      --rule:      #DDDCD7;
-      --card-bg:   #F2F1EE;
-      --display:   'Playfair Display', Georgia, serif;
-      --body:      'DM Sans', system-ui, sans-serif;
+const TOTAL_TIME = 90 * 60; // 90 minutes in seconds
+const LETTERS = ["A", "B", "C", "D", "E", "F"];
+
+function shuffleArray(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+}
+
+function getGrade(pct) {
+  if (pct >= 70) return { label: "PASS", color: "#22c55e" };
+  return { label: "FAIL", color: "#ef4444" };
+}
+
+function getRemark(pct) {
+  if (pct >= 90) return "Outstanding! Excellent command of Basic Medical Genetics.";
+  if (pct >= 75) return "Very good performance. Strong foundation in genetics.";
+  if (pct >= 60) return "Good effort. Review the topics you missed to reinforce understanding.";
+  if (pct >= 50) return "Average performance. Focused revision is recommended.";
+  return "Below average. Comprehensive review of all topics is strongly advised.";
+}
+
+export default function App() {
+  const [phase, setPhase] = useState("intro"); // intro | test | review
+  const [shuffled, setShuffled] = useState([]);
+  const [current, setCurrent] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [timeLeft, setTimeLeft] = useState(TOTAL_TIME);
+  const [submitted, setSubmitted] = useState(false);
+  const [flagged, setFlagged] = useState({});
+  const [reviewIdx, setReviewIdx] = useState(0);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    if (phase === "test" && !submitted) {
+      timerRef.current = setInterval(() => {
+        setTimeLeft(t => {
+          if (t <= 1) {
+            clearInterval(timerRef.current);
+            handleSubmit();
+            return 0;
+          }
+          return t - 1;
+        });
+      }, 1000);
     }
+    return () => clearInterval(timerRef.current);
+  }, [phase, submitted]);
 
-    html { scroll-behavior: smooth; }
+  function startTest() {
+    const sel = shuffleArray(questions).slice(0, 40);
+    setShuffled(sel);
+    setAnswers({});
+    setFlagged({});
+    setCurrent(0);
+    setTimeLeft(TOTAL_TIME);
+    setSubmitted(false);
+    setPhase("test");
+  }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--body);
-      font-size: 16px;
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-    }
+  function handleSelect(qIdx, letter) {
+    const q = shuffled[qIdx];
+    if (submitted) return;
+    setAnswers(prev => {
+      const cur = prev[qIdx] || [];
+      if (q.multi) {
+        if (cur.includes(letter)) return { ...prev, [qIdx]: cur.filter(l => l !== letter) };
+        return { ...prev, [qIdx]: [...cur, letter] };
+      } else {
+        return { ...prev, [qIdx]: [letter] };
+      }
+    });
+  }
 
-    /* ─── NAV ─────────────────────────────────────────────── */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      padding: 1.25rem 2.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(249, 248, 246, 0.92);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--rule);
-    }
+  function toggleFlag(idx) {
+    setFlagged(prev => ({ ...prev, [idx]: !prev[idx] }));
+  }
 
-    .nav-name {
-      font-family: var(--display);
-      font-size: 1.05rem;
-      font-weight: 500;
-      letter-spacing: 0.01em;
-      color: var(--text);
-      text-decoration: none;
-    }
+  function handleSubmit() {
+    clearInterval(timerRef.current);
+    setSubmitted(true);
+    setPhase("review");
+    setReviewIdx(0);
+  }
 
-    .nav-links {
-      display: flex;
-      gap: 2rem;
-      list-style: none;
-    }
+  function isCorrect(qIdx) {
+    const q = shuffled[qIdx];
+    const given = (answers[qIdx] || []).slice().sort().join(",");
+    const expected = q.answer.slice().sort().join(",");
+    return given === expected;
+  }
 
-    .nav-links a {
-      font-size: 0.85rem;
-      font-weight: 400;
-      color: var(--muted);
-      text-decoration: none;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      transition: color 0.2s;
-    }
+  function computeResults() {
+    let correct = 0;
+    let byTopic = {};
+    shuffled.forEach((q, i) => {
+      const topic = q.topic;
+      if (!byTopic[topic]) byTopic[topic] = { correct: 0, total: 0 };
+      byTopic[topic].total++;
+      if (isCorrect(i)) {
+        correct++;
+        byTopic[topic].correct++;
+      }
+    });
+    const pct = Math.round((correct / shuffled.length) * 100);
+    return { correct, total: shuffled.length, pct, byTopic };
+  }
 
-    .nav-links a:hover { color: var(--text); }
+  const timerColor = timeLeft <= 300 ? "#ef4444" : timeLeft <= 600 ? "#f59e0b" : "#a78bfa";
 
-    /* ─── HERO ────────────────────────────────────────────── */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 8rem 2.5rem 4rem;
-      max-width: 820px;
-      margin: 0 auto;
-    }
-
-    .hero-eyebrow {
-      font-size: 0.8rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--accent);
-      font-weight: 500;
-      margin-bottom: 1.4rem;
-    }
-
-    .hero-name {
-      font-family: var(--display);
-      font-size: clamp(3.2rem, 9vw, 6.5rem);
-      font-weight: 400;
-      line-height: 1.05;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      margin-bottom: 1.6rem;
-    }
-
-    /* Cycling identity line */
-    .hero-identity {
-      font-family: var(--display);
-      font-size: clamp(1rem, 2.5vw, 1.35rem);
-      font-weight: 400;
-      color: var(--muted);
-      margin-bottom: 2.4rem;
-      min-height: 2em;
-    }
-
-    .cycling-word {
-      color: var(--accent);
-      border-bottom: 1.5px solid var(--accent);
-      padding-bottom: 1px;
-    }
-
-    .hero-desc {
-      font-size: 1rem;
-      font-weight: 300;
-      color: #555;
-      max-width: 500px;
-      line-height: 1.75;
-      margin-bottom: 2.8rem;
-    }
-
-    .hero-cta {
-      display: inline-block;
-      padding: 0.75rem 1.8rem;
-      background: var(--text);
-      color: var(--bg);
-      text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      transition: background 0.2s, color 0.2s;
-    }
-
-    .hero-cta:hover {
-      background: var(--accent);
-    }
-
-    /* ─── SECTION SHARED ──────────────────────────────────── */
-    section {
-      padding: 5rem 2.5rem;
-      max-width: 820px;
-      margin: 0 auto;
-      border-top: 1px solid var(--rule);
-    }
-
-    .section-label {
-      font-size: 0.75rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--muted);
-      font-weight: 500;
-      margin-bottom: 2.5rem;
-    }
-
-    /* ─── ABOUT ───────────────────────────────────────────── */
-    .about-grid {
-      display: grid;
-      grid-template-columns: 1fr 1.5fr;
-      gap: 3.5rem;
-      align-items: start;
-    }
-
-    .about-left h2 {
-      font-family: var(--display);
-      font-size: 2rem;
-      font-weight: 400;
-      line-height: 1.2;
-      margin-bottom: 0.5rem;
-    }
-
-    .about-left .about-accent {
-      display: block;
-      width: 2rem;
-      height: 2px;
-      background: var(--accent);
-      margin-top: 1rem;
-    }
-
-    .about-right p {
-      font-size: 0.975rem;
-      line-height: 1.8;
-      color: #444;
-      font-weight: 300;
-      margin-bottom: 1rem;
-    }
-
-    .about-right p:last-child { margin-bottom: 0; }
-
-    .tag-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 1.5rem;
-    }
-
-    .tag {
-      font-size: 0.75rem;
-      padding: 0.3rem 0.75rem;
-      background: var(--card-bg);
-      border: 1px solid var(--rule);
-      color: var(--muted);
-      letter-spacing: 0.03em;
-    }
-
-    /* ─── WORK ────────────────────────────────────────────── */
-    .work-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }
-
-    .work-card {
-      background: var(--card-bg);
-      padding: 2rem;
-      position: relative;
-      overflow: hidden;
-      transition: transform 0.25s;
-    }
-
-    .work-card:hover { transform: translateY(-3px); }
-
-    .work-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 3px;
-      height: 0;
-      background: var(--accent);
-      transition: height 0.3s ease;
-    }
-
-    .work-card:hover::before { height: 100%; }
-
-    .work-type {
-      font-size: 0.7rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--accent);
-      font-weight: 500;
-      margin-bottom: 0.75rem;
-    }
-
-    .work-card h3 {
-      font-family: var(--display);
-      font-size: 1.25rem;
-      font-weight: 500;
-      margin-bottom: 0.75rem;
-    }
-
-    .work-card p {
-      font-size: 0.875rem;
-      color: #666;
-      line-height: 1.65;
-      font-weight: 300;
-    }
-
-    .work-card-wide {
-      grid-column: span 2;
-    }
-
-    /* ─── CONTACT ─────────────────────────────────────────── */
-    .contact-inner {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 2rem;
-    }
-
-    .contact-left h2 {
-      font-family: var(--display);
-      font-size: 2.2rem;
-      font-weight: 400;
-      margin-bottom: 0.75rem;
-      max-width: 320px;
-      line-height: 1.15;
-    }
-
-    .contact-left p {
-      font-size: 0.9rem;
-      color: var(--muted);
-      font-weight: 300;
-    }
-
-    .contact-right {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      align-items: flex-end;
-    }
-
-    .contact-link {
-      font-size: 0.85rem;
-      font-weight: 400;
-      color: var(--text);
-      text-decoration: none;
-      letter-spacing: 0.04em;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: color 0.2s;
-    }
-
-    .contact-link:hover { color: var(--accent); }
-
-    .contact-link .arrow {
-      font-size: 0.8rem;
-      transition: transform 0.2s;
-    }
-
-    .contact-link:hover .arrow { transform: translateX(3px); }
-
-    /* ─── FOOTER ──────────────────────────────────────────── */
-    footer {
-      border-top: 1px solid var(--rule);
-      padding: 1.8rem 2.5rem;
-      max-width: 820px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    footer p {
-      font-size: 0.78rem;
-      color: var(--muted);
-      font-weight: 300;
-    }
-
-    /* ─── RESPONSIVE ──────────────────────────────────────── */
-    @media (max-width: 640px) {
-      nav { padding: 1rem 1.5rem; }
-      .hero, section, footer { padding-left: 1.5rem; padding-right: 1.5rem; }
-      .about-grid { grid-template-columns: 1fr; gap: 2rem; }
-      .work-grid { grid-template-columns: 1fr; }
-      .work-card-wide { grid-column: span 1; }
-      .contact-inner { flex-direction: column; align-items: flex-start; }
-      .contact-right { align-items: flex-start; }
-    }
-
-    /* ─── SCROLL FADE-IN ──────────────────────────────────── */
-    .fade-in {
-      opacity: 0;
-      transform: translateY(18px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-    .fade-in.visible {
-      opacity: 1;
-      transform: none;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .fade-in { opacity: 1; transform: none; transition: none; }
-    }
-  </style>
-</head>
-
-<body>
-
-  <!-- NAV -->
-  <nav>
-    <a class="nav-name" href="#">Ajay</a>
-    <ul class="nav-links">
-      <li><a href="#about">About</a></li>
-      <li><a href="#work">Work</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-  </nav>
-
-  <!-- HERO -->
-  <div class="hero">
-    <p class="hero-eyebrow">Based in Malaysia</p>
-    <h1 class="hero-name">Ajay.</h1>
-    <p class="hero-identity">
-      Student, <span class="cycling-word" id="cycler">novelist</span>, builder.
-    </p>
-    <p class="hero-desc">
-      I study the world through equations and express it through stories.
-      Currently at university, working on a novel, and building things that matter.
-    </p>
-    <a href="#work" class="hero-cta">See my work</a>
-  </div>
-
-  <!-- ABOUT -->
-  <section id="about">
-    <p class="section-label">About</p>
-    <div class="about-grid fade-in">
-      <div class="about-left">
-        <h2>Who I am</h2>
-        <span class="about-accent"></span>
-      </div>
-      <div class="about-right">
-        <p>
-          I'm a university student with a dual life: by day I work through calculus,
-          electrostatics, and the clean logic of physics. By night I build underground worlds
-          for characters who don't yet know what's being done to them.
-        </p>
-        <p>
-          I believe the most interesting questions live at the boundary between
-          disciplines — where a story needs to be structurally sound and a proof needs to
-          feel inevitable.
-        </p>
-        <div class="tag-list">
-          <span class="tag">Mathematics</span>
-          <span class="tag">Physics</span>
-          <span class="tag">Creative Writing</span>
-          <span class="tag">Worldbuilding</span>
-          <span class="tag">Literature</span>
+  // INTRO
+  if (phase === "intro") {
+    return (
+      <div style={styles.page}>
+        <div style={styles.introCard}>
+          <div style={styles.badge}>BIO 104</div>
+          <h1 style={styles.title}>Basic Medical Genetics</h1>
+          <p style={styles.subtitle}>MedAchievers CBT Mock Examination</p>
+          <div style={styles.infoGrid}>
+            {[
+              ["Questions", "40 (randomly selected)"],
+              ["Duration", "90 Minutes"],
+              ["Type", "Multiple Choice"],
+              ["Passing Mark", "70%"],
+            ].map(([k, v]) => (
+              <div key={k} style={styles.infoItem}>
+                <span style={styles.infoKey}>{k}</span>
+                <span style={styles.infoVal}>{v}</span>
+              </div>
+            ))}
+          </div>
+          <div style={styles.instructions}>
+            <p style={{ margin: 0, color: "#c4b5fd", fontWeight: 600, marginBottom: 8 }}>Instructions</p>
+            <ul style={{ margin: 0, paddingLeft: 18, color: "#e2d9f3", lineHeight: 1.8 }}>
+              <li>Select the best answer for each question.</li>
+              <li>Some questions may have multiple correct answers — select all that apply.</li>
+              <li>You may flag questions to review before submitting.</li>
+              <li>Submit before the timer expires, or it auto-submits.</li>
+            </ul>
+          </div>
+          <button style={styles.startBtn} onClick={startTest}>Begin Examination →</button>
         </div>
       </div>
-    </div>
-  </section>
+    );
+  }
 
-  <!-- WORK -->
-  <section id="work">
-    <p class="section-label">Work</p>
-    <div class="work-grid">
+  // REVIEW / RESULTS
+  if (phase === "review") {
+    const { correct, total, pct, byTopic } = computeResults();
+    const grade = getGrade(pct);
+    const q = shuffled[reviewIdx];
+    const userAns = answers[reviewIdx] || [];
+    const qCorrect = isCorrect(reviewIdx);
 
-      <div class="work-card work-card-wide fade-in">
-        <p class="work-type">Novel — In Progress</p>
-        <h3>The Mantling</h3>
-        <p>
-          A post-apocalyptic literary novel set in an underground civilization where children
-          are unknowingly enrolled in a research program disguised as an elite school. Exploring
-          institutional power, emotional resonance, and the cost of knowing too late.
-          Draws on <em>Never Let Me Go</em>, <em>Your Lie in April</em>, and the Hunger Games.
-        </p>
-      </div>
-
-      <div class="work-card fade-in">
-        <p class="work-type">Study Resource</p>
-        <h3>PHY 102 Notes</h3>
-        <p>
-          Handwritten electrostatics notes converted into structured, MathJax-rendered
-          HTML study guides — built for clarity and long-term review.
-        </p>
-      </div>
-
-      <div class="work-card fade-in">
-        <p class="work-type">Academic</p>
-        <h3>MTH 102 Work</h3>
-        <p>
-          Exploring limits, function composition, and inverse functions through the
-          Feynman Technique — teaching to understand, not just to pass.
-        </p>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- CONTACT -->
-  <section id="contact">
-    <p class="section-label">Contact</p>
-    <div class="contact-inner fade-in">
-      <div class="contact-left">
-        <h2>Let's talk about something real.</h2>
-        <p>Open to collaboration, conversation, or feedback on the novel.</p>
-      </div>
-      <div class="contact-right">
-        <a href="mailto:ajay@email.com" class="contact-link">
-          ajay@email.com <span class="arrow">→</span>
-        </a>
-        <a href="#" class="contact-link">
-          LinkedIn <span class="arrow">→</span>
-        </a>
-        <a href="#" class="contact-link">
-          GitHub <span class="arrow">→</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer>
-    <p>© 2026 Ajay. All rights reserved.</p>
-    <p>Designed with intention.</p>
-  </footer>
-
-  <script>
-    // ── Cycling identity words ──────────────────────────────
-    const words = ['novelist', 'physicist', 'worldbuilder', 'student'];
-    let i = 0;
-    const el = document.getElementById('cycler');
-
-    setInterval(() => {
-      el.style.opacity = '0';
-      el.style.transform = 'translateY(6px)';
-      el.style.transition = 'opacity 0.3s, transform 0.3s';
-      setTimeout(() => {
-        i = (i + 1) % words.length;
-        el.textContent = words[i];
-        el.style.opacity = '1';
-        el.style.transform = 'none';
-      }, 320);
-    }, 2400);
-
-    // ── Scroll fade-in ──────────────────────────────────────
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('visible');
-          obs.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.12 });
-
-    document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
-  </script>
-
-</body>
-</html>
+    return (
+      <div style={styles.page}>
+        {/* Results header */}
+        <div style={styles.resultsHeader}>
+          <div style={styles.scoreCircleWrap}>
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="52" fill="none" stroke="#2d1f5e" strokeWidth="10" />
+ 
